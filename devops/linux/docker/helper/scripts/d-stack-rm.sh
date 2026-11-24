@@ -8,7 +8,8 @@ pushd .
   cd ${SCRIPT_DIR}/../..
 
   source ./conf.env
-  docker stack rm ${STACK_NAME}
+  # The shared `frontend` network stays while Caddy/identity-mediator (other stacks) are attached; that is fine, so do not abort callers that run with set -e.
+  docker stack rm ${STACK_NAME} || echo "(stack rm reported leftovers, continuing)"
   echo
 
 popd
