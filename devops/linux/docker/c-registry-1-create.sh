@@ -11,11 +11,9 @@ mkdir -p ${PWD}/data-registry
 
 echo "PLACEMENT_REGISTRY: ${PLACEMENT_REGISTRY}"
 
-docker service create \
-  --name registry \
-  --limit-memory=64M \
-  --publish published=5000,target=5000,protocol=tcp,mode=host \
-  --mount type=bind,source=${PWD}/data-registry,destination=/var/lib/registry,readonly=false \
-  --constraint node.hostname==${PLACEMENT_REGISTRY} \
- $REGISTRY_IMAGE
-
+# Plain container bound to loopback: the Docker daemon pulls from localhost:5000, nothing else may reach it.
+docker rm -f registry 2>/dev/null || true
+docker run -d --name registry --restart unless-stopped --memory=64m \
+  -p 127.0.0.1:5000:5000 \
+  -v ${PWD}/data-registry:/var/lib/registry \
+  $REGISTRY_IMAGE

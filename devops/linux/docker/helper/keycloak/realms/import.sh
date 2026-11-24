@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export KEYCLOAK_URL=http://${NODE1_IP}:8084
+# Keycloak has no published host port: curl runs in a throwaway container on the stack network.
+export KEYCLOAK_URL=http://jempi_keycloak-test-server:8080
+REALM_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../conf/keycloak" && pwd -P)
+curl() { docker run --rm --network frontend -v "${REALM_DIR}":/realm:ro curlimages/curl:8.10.1 -s "$@"; }
 
 # **************** Global variables
 
@@ -18,7 +21,7 @@ function configureKeycloak() {
     PASSWORD=admin
     GRANT_TYPE=password
     CLIENT_ID=admin-cli
-    JEMPI_DEV_REALM=../../../conf/keycloak/import-jempi-dev-realm.json
+    JEMPI_DEV_REALM=/realm/import-jempi-dev-realm.json
 
     access_token=$( curl -d "client_id=$CLIENT_ID" -d "username=$USER" -d "password=$PASSWORD" -d "grant_type=$GRANT_TYPE" "$KEYCLOAK_URL/realms/master/protocol/openid-connect/token" | sed -n 's|.*"access_token":"\([^"]*\)".*|\1|p')
 
