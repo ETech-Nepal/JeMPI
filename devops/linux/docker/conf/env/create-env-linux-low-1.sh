@@ -15,13 +15,13 @@ export API_FIELDS_CONFIG_FILENAME="config-api.json"
 
 export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
-export NODE1_IP=$(hostname -i)
+export NODE1_IP=$(hostname -I | awk '{print $1}')
 
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
 export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
-export SCALE_RATEL=1
+export SCALE_RATEL=0
 export SCALE_POSTGRESQL=1
 export SCALE_LINKER=1
 
@@ -68,21 +68,21 @@ export REACT_APP_ENABLE_SSO="true"
 # export REACT_APP_JEMPI_BASE_API_PORT=50000
 # export REACT_APP_ENABLE_SSO="false"
 export REACT_APP_MOCK_BACKEND="false"
-export KC_FRONTEND_URL=http://${NODE1_IP}:8080
+export KC_FRONTEND_URL=http://${NODE1_IP}:8084
 
 # ram limit for linker
-export POSTGRESQL_RAM_LIMIT="8G"
-export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
-export HAPROXY_RAM_LIMIT="8G"
-export KAFKA_RAM_LIMIT="8G"
-export DGRAPH_RAM_LIMIT="16G"
-export ASYNC_RECEIVER_RAM_LIMIT="8G"
-export ETL_RAM_LIMIT="8G"
-export CONTROLLER_RAM_LIMIT="8G"
-export EM_SCALA_RAM_LIMIT="16G"
-export LINKER_RAM_LIMIT="8G"
-export API_RAM_LIMIT="8G"
-export UI_RAM_LIMIT="8G"
+export POSTGRESQL_RAM_LIMIT="768M"
+export KEYCLOAK_TEST_SERVER_RAM_LIMIT="1G"
+export HAPROXY_RAM_LIMIT="256M"
+export KAFKA_RAM_LIMIT="1G"
+export DGRAPH_RAM_LIMIT="2G"
+export ASYNC_RECEIVER_RAM_LIMIT="512M"
+export ETL_RAM_LIMIT="768M"
+export CONTROLLER_RAM_LIMIT="1G"
+export EM_SCALA_RAM_LIMIT="1G"
+export LINKER_RAM_LIMIT="1G"
+export API_RAM_LIMIT="1G"
+export UI_RAM_LIMIT="512M"
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2

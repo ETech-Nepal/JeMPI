@@ -15,7 +15,7 @@ export API_FIELDS_CONFIG_FILENAME="config-api.json"
 
 export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
-export NODE1_IP=$(hostname -i)
+export NODE1_IP=$(hostname -I | awk '{print $1}')
 export PLACEMENT_NODE1=jempi1
 export NODE1=jempi1
 export PLACEMENT_NODE2=jempi2

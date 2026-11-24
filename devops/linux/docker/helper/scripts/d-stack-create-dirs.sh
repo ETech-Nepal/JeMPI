@@ -11,7 +11,6 @@ pushd .
   source ./conf/images/conf-hub-images.sh
   source ./conf/images/conf-app-images.sh
 
-  docker system prune --volumes
 
   sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
@@ -32,7 +31,7 @@ pushd .
   mkdir -p ${DATA_POSTGRESQL_DIR}
   cp ./conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
   mkdir -p ${DATA_POSTGRESQL_DB_DIR}
-  sudo chown -R 1001:1001 ${DATA_POSTGRESQL_DB_DIR}
+  sudo chown -R 70:70 ${DATA_POSTGRESQL_DB_DIR}
   sudo chmod -R 770 ${DATA_POSTGRESQL_DB_DIR}
   
   mkdir -p ${POSTGRES_BACKUP_DIRECTORY}

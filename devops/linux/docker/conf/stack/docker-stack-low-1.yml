@@ -15,11 +15,6 @@ services:
     image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
     networks:
       - backend
-    ports:
-      - published: 5432
-        target: 5432
-        protocol: tcp
-        mode: host
     volumes:
       - type: bind
         source: ${DATA_POSTGRESQL_DIR}
@@ -27,12 +22,11 @@ services:
         read_only: true
       - type: bind
         source: ${DATA_POSTGRESQL_DB_DIR}
-        target: /bitnami/postgresql
+        target: /var/lib/postgresql/data
     environment:
-      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      ALLOW_EMPTY_PASSWORD: "no"
+      POSTGRES_USER: ${POSTGRESQL_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRES_DB: ${POSTGRESQL_DATABASE}
     deploy:
       mode: replicated
       replicas: ${SCALE_POSTGRESQL}
@@ -78,7 +72,7 @@ services:
         target: 3000
         protocol: tcp
         mode: host
-      - published: 8080
+      - published: 8084
         target: 8080
         protocol: tcp
         mode: host
@@ -100,24 +94,29 @@ services:
     networks:
       - backend
     environment:
-      BITNAMI_DEBUG: "true"
       # KRaft settings
-      KAFKA_KRAFT_CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
-      KAFKA_CFG_NODE_ID: 1
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093
+      CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093
       # Listeners
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_BROKER_ID: 1
-      KAFKA_CFG_MESSAGE_MAX_BYTES: 1048576
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_MESSAGE_MAX_BYTES: 1048576
+      # Single broker: internal topics cannot have 3 replicas.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - type: bind
         source: ${DATA_KAFKA_01_DIR}
-        target: /bitnami/kafka
+        target: /var/lib/kafka/data
         read_only: false
     deploy:
       mode: replicated
@@ -139,15 +138,6 @@ services:
     hostname: "zero-01"
     networks:
       - backend
-    ports:
-      - published: 5080
-        target: 5080
-        protocol: tcp
-        mode: host
-      - published: 6080
-        target: 6080
-        protocol: tcp
-        mode: host
     volumes:
       - type: bind
         source: ${DATA_DGRAPH_ZERO_01_DIR}
@@ -176,15 +166,6 @@ services:
       - type: bind
         source: ${DATA_DGRAPH_ALPHA_01_DIR}
         target: /dgraph
-    ports:
-      - published: 8081
-        target: 8080
-        protocol: tcp
-        mode: host
-      - published: 9080
-        target: 9080
-        protocol: tcp
-        mode: host
     deploy:
       replicas: ${SCALE_ALPHA_01}
       resources:
@@ -198,15 +179,10 @@ services:
       placement:
         constraints:
           - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=4096; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=512; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
-    ports:
-      - published: 8010
-        target: 8000
-        protocol: tcp
-        mode: host
     networks:
       - backend
     deploy:
@@ -558,24 +534,22 @@ services:
     networks:
       - frontend
       - backend
+    # start-dev: plain HTTP behind haproxy, no TLS. Demo only; use `start` with a hostname for real use.
+    command: start-dev
     environment:
-      KEYCLOAK_CREATE_ADMIN_USER: "true"
-      KEYCLOAK_ADMIN_USER: "admin"
-      KEYCLOAK_ADMIN_PASSWORD: "admin"
-      DB_ADDR: postgresql
-      DB_PORT: 5432
-      DB_USER: ${POSTGRESQL_USERNAME}
-      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
-      DB_DATABASE: ${POSTGRESQL_KC_TEST_DB}
+      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgresql:5432/${POSTGRESQL_KC_TEST_DB}
+      KC_DB_USERNAME: ${POSTGRESQL_USERNAME}
+      KC_DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+    # The official image has no curl; probe the port with bash.
     healthcheck:
-      test:
-        - "CMD"
-        - "curl"
-        - "-f"
-        - "http://localhost:8080"
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080'"]
       interval: "5s"
       timeout: "5s"
       retries: 36
+      start_period: "60s"
     deploy:
       mode: replicated
       replicas: 1
