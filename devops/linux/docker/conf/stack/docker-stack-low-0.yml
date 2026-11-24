@@ -51,31 +51,7 @@ services:
     networks:
       - frontend
       - backend
-    ports:
-      - published: 30460
-        target: 30460
-        protocol: tcp
-        mode: host
-      - published: 50000
-        target: 50000
-        protocol: tcp
-        mode: host
-      - published: 50001
-        target: 50001
-        protocol: tcp
-        mode: host
-      - published: 50010
-        target: 50010
-        protocol: tcp
-        mode: host
-      - published: 3000
-        target: 3000
-        protocol: tcp
-        mode: host
-      - published: 8084
-        target: 8080
-        protocol: tcp
-        mode: host
+    # No published ports: the edge Caddy (separate stack) joins the `frontend` network.
     volumes:
       - type: bind
         source: ${DATA_HAPROXY_DIR}
@@ -537,6 +513,9 @@ services:
     # start-dev: plain HTTP behind haproxy, no TLS. Demo only; use `start` with a hostname for real use.
     command: start-dev
     environment:
+      # Public URL (https://jempi-auth.<domain>): becomes the token issuer. Empty = request host.
+      KC_HOSTNAME: "${KC_FRONTEND_URL}"
+      KC_PROXY_HEADERS: xforwarded
       KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
       KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
       KC_DB: postgres
