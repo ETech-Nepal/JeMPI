@@ -69,9 +69,7 @@
       "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
+        "comparisonLevels": [0.92],
         "m": 0.8806329,
         "u": 0.0026558
       }
@@ -86,9 +84,7 @@
       "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
+        "comparisonLevels": [0.92],
         "m": 0.9140443,
         "u": 0.0006275
       }
@@ -102,9 +98,7 @@
       "indexGoldenRecord": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
+        "comparisonLevels": [0.92],
         "m": 0.9468393,
         "u": 0.4436446
       }
@@ -115,13 +109,13 @@
       "source": {
         "csvCol": 4
       },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
+        "comparisonLevels": [0.92],
         "m": 0.7856196,
-        "u": 0.0000465
+        "u": 4.65e-5
       }
     },
     {
@@ -133,9 +127,7 @@
       "indexGoldenRecord": "@index(trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
+        "comparisonLevels": [0.92],
         "m": 0.8445694,
         "u": 0.0355741
       }
@@ -149,11 +141,9 @@
       "indexGoldenRecord": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8408500,
-        "u": 0.0000004
+        "comparisonLevels": [0.92],
+        "m": 0.84085,
+        "u": 4e-7
       }
     },
     {
@@ -166,11 +156,9 @@
       "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
+        "comparisonLevels": [0.92],
         "m": 0.8441029,
-        "u": 0.0000002
+        "u": 2e-7
       }
     }
   ],
@@ -178,18 +166,18 @@
     "link": {
       "deterministic": [
         {
-          "vars": [
-            "national_id"
-          ],
+          "vars": ["national_id"],
           "text": "eq(national_id)"
         },
         {
           "vars": [
             "given_name",
             "family_name",
-            "phone_number"
+            "dob",
+            "phone_number",
+            "gender"
           ],
-          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
+          "text": "eq(given_name) and eq(family_name) and eq(dob) and eq(phone_number) and eq(gender)"
         }
       ],
       "probabilistic": [
@@ -197,11 +185,11 @@
           "vars": [
             "given_name",
             "family_name",
-            "city",
+            "dob",
             "phone_number",
             "national_id"
           ],
-          "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)"
+          "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(dob,3) or match(family_name,3) and match(dob,3) or match(phone_number,2) or match(national_id,3)"
         }
       ]
     }

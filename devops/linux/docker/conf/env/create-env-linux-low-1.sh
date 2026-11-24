@@ -95,8 +95,8 @@ export LINKER_RAM_LIMIT="1G"
 export API_RAM_LIMIT="1G"
 export UI_RAM_LIMIT="512M"
 
-# DON'T CHANGE
-export REGISTRY_NODE_IP=${NODE1}:5000/v2
+# DON'T CHANGE. localhost: the registry listens on 127.0.0.1 only (see c-registry-1-create.sh).
+export REGISTRY_NODE_IP=localhost:5000/v2
 
 if [ $USE_LOCAL_REGISTRY == 'true' ]; then
     export IMAGE_REGISTRY="$REGISTRY_NODE_IP/"
