@@ -71,11 +71,11 @@ export REACT_APP_MOCK_BACKEND="false"
 export KC_FRONTEND_URL=http://${NODE1_IP}:8084
 
 # Public HTTPS behind the edge Caddy. Usage: PUBLIC_DOMAIN=103.90.84.17.sslip.io ./create-env-linux-low-1.sh
-# Hosts: jempi.<d> (UI), jempi-api.<d> (API-KC), jempi-auth.<d> (Keycloak). Unset = old IP:port setup.
+# Hosts: jempi.<d> (UI, and API-KC under /JeMPI), jempi-auth.<d> (Keycloak). Unset = old IP:port setup.
 if [ -n "${PUBLIC_DOMAIN:-}" ]; then
     export KC_FRONTEND_URL=https://jempi-auth.${PUBLIC_DOMAIN}
     export KC_JEMPI_ROOT_URL=https://jempi.${PUBLIC_DOMAIN}
-    export REACT_APP_JEMPI_BASE_API_HOST=https://jempi-api.${PUBLIC_DOMAIN}
+    export REACT_APP_JEMPI_BASE_API_HOST=https://jempi.${PUBLIC_DOMAIN}
     export REACT_APP_JEMPI_BASE_API_PORT=443
     export JEMPI_SESSION_SECURE="true"
     export JEMPI_SESSION_DOMAIN_NAME="${PUBLIC_DOMAIN}"

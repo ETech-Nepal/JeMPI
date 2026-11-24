@@ -31,7 +31,8 @@ pushd .
   )
 
   for SERVICE in ${SERVICES[@]}; do
-    NAME=`docker ps -f name=$SERVICE --format "{{.Names}}"`
+    # Match this stack only ("jempi_api."): a bare substring also hits other stacks, e.g. "api" in "hapi-db".
+    NAME=`docker ps -f "name=${STACK_NAME}_${SERVICE}\." --format "{{.Names}}"`
     if [ -n "$NAME" ]; then
 #     docker service scale $SERVICE=0
       docker wait $NAME
