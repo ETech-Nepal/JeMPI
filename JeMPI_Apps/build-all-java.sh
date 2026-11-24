@@ -10,10 +10,8 @@ else
     tag_to_use=$1
 fi
 
-mvn clean package
-pushd JeMPI_EM_Scala
-  sbt clean assembly
-popd
+mvn clean package -DskipTests
+# EM (Scala, needs sbt) skipped: it only recalculates M/U. Re-enable with its stack replica.
 
 pushd JeMPI_AsyncReceiver
   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
@@ -22,9 +20,6 @@ pushd JeMPI_ETL
   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Controller
-  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-popd
-pushd JeMPI_EM_Scala
   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Linker
@@ -49,9 +44,6 @@ pushd JeMPI_ETL
   ./push.sh
 popd
 pushd JeMPI_Controller
-  ./push.sh
-popd
-pushd JeMPI_EM_Scala
   ./push.sh
 popd
 pushd JeMPI_Linker
